@@ -12,7 +12,7 @@ const CoffeeProfile = new mongoose.Schema({
         type: String,
     },
     flavourProfile:{
-        type: mongoose.Schema.Types.ObjectId, ref:"Recipe",
+        type: mongoose.Schema.Types.ObjectId, ref:"RecipeSchema",
         required: true
     },
     description: {

@@ -1,14 +1,16 @@
 const express = require("express");
 const { createProfile, getAllProfiles, getProfileById, updateProfile, deleteProfile } = require("../controllers/CoffeeProfileController");
+const protect = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
 
-router.post("/", createProfile); 
-
-router.get("/profiles", getAllProfiles); //Implemented Get API
-router.get("/profiles/:id", getProfileById); //Implemented Get API
-router.put("/profiles/:id", updateProfile);
-router.delete("/profiles/:id", deleteProfile);
+router.route("/")
+    .get(getAllProfiles)
+    .post(protect, createProfile);
+router.route("/:id")
+    .get(getProfileById)
+    .put(protect, updateProfile)
+    .delete(protect, deleteProfile);
 
 module.exports = router;

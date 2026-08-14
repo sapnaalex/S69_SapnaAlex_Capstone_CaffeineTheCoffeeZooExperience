@@ -1,38 +1,12 @@
-import React from "react";
+import { Link } from "react-router-dom";
+import { ArrowRightIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import useAuth from "../hooks/useAuth";
 
 const Home = () => {
-  return (
-    <div className="min-h-screen bg-[#DBC4A0] text-[#4A2C2A]">
-      {/* Navbar */}
-      <nav className="flex justify-between items-center px-6 py-4 bg-[#5C3D2E] text-white rounded-b-lg shadow-lg">
-        <h1 className="text-3xl font-bold italic">Caffeine</h1>
-        <ul className="flex gap-6">
-          <li className="hover:text-[#C49A6C] cursor-pointer">Home</li>
-          <li className="hover:text-[#C49A6C] cursor-pointer">Explore</li>
-          <li className="hover:text-[#C49A6C] cursor-pointer">Games</li>
-          <li className="hover:text-[#C49A6C] cursor-pointer">MugMates</li>
-          <li className="hover:text-[#C49A6C] cursor-pointer">Login</li>
-        </ul>
-      </nav>
-
-      {/* Hero Section */}
-      <div className="flex flex-col items-center justify-center text-center py-16">
-        <h2 className="text-4xl font-semibold text-[#4A2C2A]">
-          Take a test to get your Coffee Animal
-        </h2>
-        <button className="mt-6 px-6 py-3 bg-[#8B5A2B] text-white rounded-lg shadow-md hover:bg-[#C49A6C]">
-          Start Now
-        </button>
-      </div>
-
-      {/* Carousel Placeholder */}
-      <div className="flex justify-center items-center space-x-4 py-10">
-        <div className="w-40 h-40 bg-[#A67C52] rounded-lg shadow-lg"></div>
-        <div className="w-40 h-40 bg-[#8B5A2B] rounded-lg shadow-lg"></div>
-        <div className="w-40 h-40 bg-[#5C3D2E] rounded-lg shadow-lg"></div>
-      </div>
-    </div>
-  );
+  const { user } = useAuth();
+  return <section><p className="text-sm font-bold uppercase tracking-[.18em] text-leaf">Your coffee trail</p><h1 className="mt-2 font-display text-4xl font-bold text-espresso sm:text-5xl">Hello, {user?.username || "explorer"}.</h1><p className="mt-3 max-w-xl text-lg text-mocha">The foundations are set. Choose an enclosure to begin exploring as each experience opens.</p>
+    <div className="mt-8 grid gap-4 md:grid-cols-3"><Link to="/coffee-zoo" className="rounded-2xl bg-espresso p-6 text-cream shadow-card transition hover:-translate-y-0.5"><span className="text-3xl">🦁</span><h2 className="mt-5 font-display text-2xl font-bold">Coffee Zoo</h2><p className="mt-2 text-sm text-sand">Discover the personalities behind the beans.</p><span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold">Explore <ArrowRightIcon className="h-4 w-4" /></span></Link><Link to="/coffee-companion" className="rounded-2xl bg-leaf p-6 text-white shadow-card transition hover:-translate-y-0.5"><SparklesIcon className="h-8 w-8" /><h2 className="mt-5 font-display text-2xl font-bold">Coffee Companion</h2><p className="mt-2 text-sm text-white/75">Meet a guide for your discovery trail.</p><span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold">Meet companions <ArrowRightIcon className="h-4 w-4" /></span></Link><Link to="/mugmates" className="rounded-2xl bg-white p-6 text-espresso shadow-card ring-1 ring-sand transition hover:-translate-y-0.5"><span className="text-3xl">☕</span><h2 className="mt-5 font-display text-2xl font-bold">MugMates</h2><p className="mt-2 text-sm text-mocha">Find fellow coffee lovers and their stories.</p><span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold">See the community <ArrowRightIcon className="h-4 w-4" /></span></Link></div>
+  </section>;
 };
 
 export default Home;

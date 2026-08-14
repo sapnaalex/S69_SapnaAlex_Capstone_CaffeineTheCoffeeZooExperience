@@ -34,8 +34,8 @@ exports.createUser = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
     try {
-        const users = await Users.find();
-        res.status(200).json(users);
+        const users = await Users.find().select("-password");
+        res.status(200).json({ data: users });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -44,10 +44,10 @@ exports.getAllUsers = async (req, res) => {
 exports.getUserById = async (req, res) => {
     try {
         const user = await Users.findById(req.params.id)
-            .populate("coffeeProfile")
+            .select("-password")
             .populate("favorites");
         if (!user) return res.status(404).json({ message: "User not found" });
-        res.status(200).json(user);
+        res.status(200).json({ data: user });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -55,18 +55,30 @@ exports.getUserById = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     try {
-        const updatedUser = await Users.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.status(200).json({ message: "User updated Successfully", user: updatedUser });
+        if (req.params.id !== req.user._id.toString()) {
+            return res.status(403).json({ message: "You can only update your own user record" });
+        }
+        const update = ["username", "emailID", "profilePicture"].reduce(
+            (data, field) => ({ ...data, ...(req.body[field] !== undefined ? { [field]: req.body[field] } : {}) }), {}
+        );
+        const updatedUser = await Users.findByIdAndUpdate(req.params.id, update, { new: true, runValidators: true })
+            .select("-password");
+        if (!updatedUser) return res.status(404).json({ message: "User not found" });
+        res.status(200).json({ message: "User updated successfully", data: updatedUser });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ message: error.message });
     }
 };
 
 exports.deleteUser = async (req, res) => {
     try {
-        await Users.findByIdAndDelete(req.params.id);
+        if (req.params.id !== req.user._id.toString()) {
+            return res.status(403).json({ message: "You can only delete your own user record" });
+        }
+        const deletedUser = await Users.findByIdAndDelete(req.params.id);
+        if (!deletedUser) return res.status(404).json({ message: "User not found" });
         res.status(200).json({ message: "User deleted successfully" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(400).json({ message: error.message });
     }
 };

@@ -11,12 +11,20 @@ const generateToken = (user) => {
     );
 };
 
+const publicUser = (user) => ({
+  id: user._id,
+  username: user.username,
+  emailID: user.emailID,
+  profilePicture: user.profilePicture,
+});
+
 // User Registration
 const register = async (req, res) => {
   try {
-    console.log("Received request body:", req.body); // Debugging
-    
     const { username, emailID, password } = req.body;
+    if (!username?.trim() || !emailID?.trim() || !password) {
+      return res.status(400).json({ message: "Username, emailID, and password are required" });
+    }
     
     let user = await User.findOne({ emailID });
     if (user) return res.status(400).json({ message: 'User already exists' });
@@ -25,10 +33,8 @@ const register = async (req, res) => {
     user = new User({ username, emailID, password: hashedPassword });
 
     await user.save();
-    console.log("User saved:", user); // Debugging
-
     const token = generateToken(user);
-    res.status(201).json({ message: 'User registered successfully', token, user: { id: user._id, username: user.username } });
+    res.status(201).json({ message: 'User registered successfully', token, user: publicUser(user) });
   } catch (error) {
     console.error("Registration error:", error);
     res.status(500).json({ message: error.message });
@@ -41,26 +47,23 @@ const register = async (req, res) => {
 // User Login
 const login = async (req, res) => {
   try {
-    console.log("Login request received:", req.body);
-    
     const { emailID, password } = req.body;
+    if (!emailID?.trim() || !password) {
+      return res.status(400).json({ message: "emailID and password are required" });
+    }
     const user = await User.findOne({ emailID });
 
     if (!user) {
-      console.log("User not found");
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      console.log("Password does not match");
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
     const token = generateToken(user);
-    console.log("Login successful for user:", user.username);
-    
-    res.json({ token, user: { id: user._id, username: user.username } });
+    res.json({ token, user: publicUser(user) });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ error: error.message });
@@ -80,7 +83,7 @@ const updateUser = async (req, res) => {
     user.emailID = emailID || user.emailID;
 
     await user.save();
-    res.json({ message: 'User updated successfully', user });
+    res.json({ message: 'User updated successfully', user: publicUser(user) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

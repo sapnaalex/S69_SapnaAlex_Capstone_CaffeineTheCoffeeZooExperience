@@ -5,14 +5,16 @@ const {
     getNotificationsByUserId,  
     deleteNotification 
 } = require("../controllers/NotificationController");
+const protect = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
 
-router.post("/notifications", createNotification); 
-router.get("/notifications", getAllNotifications); 
-router.get("/notifications/user/:userId", getNotificationsByUserId); 
-router.delete("/notifications/:id", deleteNotification);
+router.route("/")
+    .get(protect, getAllNotifications)
+    .post(protect, createNotification);
+router.get("/user/:userId", protect, getNotificationsByUserId);
+router.delete("/:id", protect, deleteNotification);
 
 
 module.exports = router;

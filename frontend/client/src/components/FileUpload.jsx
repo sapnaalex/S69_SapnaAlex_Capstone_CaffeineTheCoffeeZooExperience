@@ -1,62 +1,62 @@
 import { useState } from "react";
-import axios from "axios";
+import { PhotoIcon } from "@heroicons/react/24/outline";
+import { uploadFile } from "../api/fileApi";
+import { getApiErrorMessage } from "../api/client";
+import Button from "./Button";
 
-const FileUpload = () => {
+const FileUpload = ({ onUploaded }) => {
   const [file, setFile] = useState(null);
-  const [uploadedFile, setUploadedFile] = useState(null);
+  const [preview, setPreview] = useState("");
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-    setError(""); // Clear error when a new file is selected
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+    if (!selectedFile.type.startsWith("image/")) {
+      setError("Please choose an image file.");
+      return;
+    }
+    setFile(selectedFile);
+    setPreview(URL.createObjectURL(selectedFile));
+    setError("");
   };
 
   const handleUpload = async () => {
     if (!file) {
-      setError("Please select a file first!");
+      setError("Choose an image before uploading.");
       return;
     }
-    console.log("File to upload:", file); // Log the file object
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("uploadedBy", "64d8141e4e10b0efe7953451"); // Replace with a valid user ID
-
+    setIsUploading(true);
+    setError("");
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/files",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      console.log("Upload response:", response.data); // Log the response data
-      if (response.data && response.data.fileUrl) {
-        setUploadedFile(response.data.fileUrl); // Correctly map the file URL
-        setError("");
-      } else {
-        setError("Unexpected response from the server.");
-      }
-    } catch (error) {
-      setError(
-        error.response?.data?.message || "File upload failed! Please try again."
-      );
-      console.error(error);
+      const response = await uploadFile(file, (event) => {
+        if (event.total) setProgress(Math.round((event.loaded * 100) / event.total));
+      });
+      onUploaded?.(response);
+      setProgress(100);
+    } catch (uploadError) {
+      setError(getApiErrorMessage(uploadError, "Image upload failed."));
+    } finally {
+      setIsUploading(false);
     }
   };
 
   return (
-    <div className="upload-container">
-      <input type="file" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Upload</button>
-
-      {uploadedFile && (
-        <div>
-          <p>Uploaded File:</p>
-          <img src={uploadedFile} alt="Uploaded" width="200" />
-        </div>
-      )}
-
-      {error && <p className="error" style={{ color: "red" }}>{error}</p>}
-    </div>
+    <section className="rounded-2xl border border-sand bg-white p-5 shadow-card">
+      <div className="flex items-start gap-3">
+        <div className="rounded-xl bg-cream p-2.5 text-espresso"><PhotoIcon className="h-5 w-5" /></div>
+        <div><h2 className="font-display text-lg font-semibold text-espresso">Upload an image</h2><p className="text-sm text-mocha">Your account is identified by your secure session.</p></div>
+      </div>
+      <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-sand bg-cream/50 p-5 text-center text-sm text-mocha hover:border-leaf">
+        <input type="file" accept="image/*" className="sr-only" onChange={handleFileChange} />
+        {preview ? <img src={preview} alt="Selected upload preview" className="h-28 w-28 rounded-xl object-cover" /> : <><PhotoIcon className="mb-2 h-7 w-7" /><span>Select an image to preview</span></>}
+      </label>
+      {isUploading && <div className="mt-3 h-2 overflow-hidden rounded-full bg-cream"><div className="h-full bg-leaf transition-all" style={{ width: `${progress}%` }} /></div>}
+      {error && <p className="mt-3 text-sm text-terracotta" role="alert">{error}</p>}
+      <Button className="mt-4 w-full" onClick={handleUpload} isLoading={isUploading}>Upload image</Button>
+    </section>
   );
 };
 

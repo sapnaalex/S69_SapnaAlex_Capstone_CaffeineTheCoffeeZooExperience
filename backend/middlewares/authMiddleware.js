@@ -11,18 +11,18 @@ const protect = async (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
         token = req.headers.authorization.split(" ")[1]; // Extract token
     } else {
-        return res.status(401).json({ error: "Not authorized, token missing" });
+        return res.status(401).json({ message: "Not authorized, token missing" });
     }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = await User.findById(decoded.id).select("-password"); // Attach user to request
         if (!req.user) {
-            return res.status(404).json({ error: "User not found!" });
+            return res.status(404).json({ message: "User not found" });
         }
         next();
     } catch (error) {
-        res.status(401).json({ error: "Not authorized, invalid or expired token" });
+        res.status(401).json({ message: "Not authorized, invalid or expired token" });
     }
 };
 

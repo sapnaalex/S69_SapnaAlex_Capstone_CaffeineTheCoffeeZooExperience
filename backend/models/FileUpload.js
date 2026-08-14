@@ -6,7 +6,7 @@ const FileUploadSchema = new mongoose.Schema({
     originalname: { type: String }, // Ensure optional fields are included
     mimetype: { type: String },
     size: { type: Number },
-    uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "UserSchema" }
+    uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
 }, { timestamps: true });
 
 module.exports = mongoose.model("FileUpload", FileUploadSchema);

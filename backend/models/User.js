@@ -30,10 +30,10 @@
             type: Date,
             default: Date.now
         },
-        recipes: [{type: mongoose.Schema.Types.ObjectId, ref: "Recipe"}],
-        favorites: [{type: mongoose.Schema.Types.ObjectId, ref:"Recipe"}],
-        comments: [{type: mongoose.Schema.Types.ObjectId, ref:"Comment"}],
-        leaderboard: {type: mongoose.Schema.Types.ObjectId, ref:"Leaderboards"}
+        recipes: [{type: mongoose.Schema.Types.ObjectId, ref: "RecipeSchema"}],
+        favorites: [{type: mongoose.Schema.Types.ObjectId, ref:"RecipeSchema"}],
+        comments: [{type: mongoose.Schema.Types.ObjectId, ref:"CommentSchema"}],
+        leaderboard: {type: mongoose.Schema.Types.ObjectId, ref:"LeaderboardSchema"}
 
     })
 
