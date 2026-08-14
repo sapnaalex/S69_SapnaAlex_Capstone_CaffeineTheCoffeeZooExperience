@@ -5,10 +5,10 @@ const Leaderboards = require("../models/Leaderboards");
 
 const getLeaderboard = async (req, res) => {
     try {
-        const leaderboard = await Leaderboards.find();
-        res.status(200).json(leaderboard);
+        const leaderboard = await Leaderboards.find().sort({ rank: 1, score: -1 });
+        res.status(200).json({ data: leaderboard });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -19,9 +19,9 @@ const getLeaderboardById = async (req, res) => {
         if (!leaderboardEntry) {
             return res.status(404).json({ message: "Entry not found" });
         }
-        res.status(200).json(leaderboardEntry);
+        res.status(200).json({ data: leaderboardEntry });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -30,9 +30,9 @@ const createLeaderboard = async (req, res) => {
     try {
         const newEntry = new Leaderboards(req.body);
         await newEntry.save();
-        res.status(201).json({ message: "Leaderboard entry created successfully", entry: newEntry });
+        res.status(201).json({ message: "Leaderboard entry created successfully", data: newEntry });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -42,9 +42,9 @@ const updateLeaderboard = async (req, res) => {
         if (!updatedEntry) {
             return res.status(404).json({ message: "Entry not found" });
         }
-        res.status(200).json({ message: "Leaderboard entry updated", entry: updatedEntry });
+        res.status(200).json({ message: "Leaderboard entry updated", data: updatedEntry });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -56,7 +56,7 @@ const deleteLeaderboard = async (req, res) => {
         }
         res.status(200).json({ message: "Leaderboard entry deleted" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 

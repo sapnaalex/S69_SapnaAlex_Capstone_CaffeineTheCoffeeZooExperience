@@ -1,13 +1,15 @@
 const express = require("express");
 const { createCompanion, getAllCompanions, getCompanionById, updateCompanion, deleteCompanion } = require("../controllers/CoffeeCompanionController");
-const Post = require("../models/Post");
+const protect = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
-router.post("/companions", createCompanion); 
-router.get("/companions", getAllCompanions); 
-router.get("/companions/:id", getCompanionById); 
-router.put("/companions/:id", updateCompanion);
-router.delete("/companions/:id", deleteCompanion);
+router.route("/")
+    .get(getAllCompanions)
+    .post(protect, createCompanion);
+router.route("/:id")
+    .get(getCompanionById)
+    .put(protect, updateCompanion)
+    .delete(protect, deleteCompanion);
 
 module.exports = router;

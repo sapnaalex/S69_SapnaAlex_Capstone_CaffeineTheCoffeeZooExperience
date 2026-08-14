@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
 const Comments = new mongoose.Schema({
-    username:{
+    createdBy:{
         type: mongoose.Schema.Types.ObjectId, ref:"User", required: true
     },
-    recipe: {type: mongoose.Schema.Types.ObjectId, ref:"Recipe", required: true},
+    post: {type: mongoose.Schema.Types.ObjectId, ref:"PostSchema", required: true},
     content:{
         type: String,
         required: true

@@ -20,7 +20,7 @@ const Games = new mongoose.Schema({
         required: true
     }, 
     highestScore:{
-        type: mongoose.Schema.Types.ObjectId, ref:"Leaderboards"
+        type: mongoose.Schema.Types.ObjectId, ref:"LeaderboardSchema"
     }
    
 

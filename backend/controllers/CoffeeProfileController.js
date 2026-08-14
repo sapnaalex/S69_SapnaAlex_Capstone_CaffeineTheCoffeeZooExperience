@@ -1,61 +1,62 @@
 const CoffeeProfile = require("../models/CoffeeProfile");
 
-
+const profileFields = ["linkedCoffeeCompanion", "name", "origin", "flavourProfile", "description"];
 
 exports.createProfile = async (req, res) => {
     try {
-        const { name, origin, flavourProfile, description } = req.body;
+        const missingFields = ["linkedCoffeeCompanion", "name", "flavourProfile", "description"]
+            .filter((field) => !req.body[field]);
+        if (missingFields.length) return res.status(400).json({ message: `Missing required fields: ${missingFields.join(", ")}` });
 
-        if (!name || !flavourProfile || !description) {
-            return res.status(400).json({ message: "Missing required fields" });
-        }
-
-        const newProfile = new CoffeeProfile({ name, origin, flavourProfile, description });
-        await newProfile.save();
-
-        res.status(201).json({ message: "Coffee Profile created successfully!", profile: newProfile });
+        const profile = await CoffeeProfile.create(
+            profileFields.reduce((data, field) => ({ ...data, ...(req.body[field] !== undefined ? { [field]: req.body[field] } : {}) }), {})
+        );
+        res.status(201).json({ message: "Coffee profile created successfully", data: profile });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(400).json({ message: error.message });
     }
 };
 
-
-exports.getAllProfiles = async (req, res) => {
+exports.getAllProfiles = async (_req, res) => {
     try {
-        const profiles = await CoffeeProfile.find();
-        res.status(200).json(profiles);
+        const profiles = await CoffeeProfile.find()
+            .populate("linkedCoffeeCompanion", "CompanionName personality")
+            .populate("flavourProfile", "title description");
+        res.status(200).json({ data: profiles });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
-
 
 exports.getProfileById = async (req, res) => {
     try {
         const profile = await CoffeeProfile.findById(req.params.id)
-            .populate("coffeeSpecies", "CompanionName origin")
-            .populate("user","username email");
-        if (!profile) return res.status(404).json({ message: "Profile not found" });
-        res.status(200).json(profile);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+            .populate("linkedCoffeeCompanion", "CompanionName personality")
+            .populate("flavourProfile", "title description ingredients");
+        if (!profile) return res.status(404).json({ message: "Coffee profile not found" });
+        res.status(200).json({ data: profile });
+    } catch (_error) {
+        res.status(400).json({ message: "Invalid coffee profile id" });
     }
 };
 
 exports.updateProfile = async (req, res) => {
     try {
-        const updatedProfile = await CoffeeProfile.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.status(200).json({ message: "Profile updated successfully", profile: updatedProfile });
+        const update = profileFields.reduce((data, field) => ({ ...data, ...(req.body[field] !== undefined ? { [field]: req.body[field] } : {}) }), {});
+        const profile = await CoffeeProfile.findByIdAndUpdate(req.params.id, update, { new: true, runValidators: true });
+        if (!profile) return res.status(404).json({ message: "Coffee profile not found" });
+        res.status(200).json({ message: "Coffee profile updated successfully", data: profile });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ message: error.message });
     }
 };
 
 exports.deleteProfile = async (req, res) => {
     try {
-        await CoffeeProfile.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: "Profile deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        const profile = await CoffeeProfile.findByIdAndDelete(req.params.id);
+        if (!profile) return res.status(404).json({ message: "Coffee profile not found" });
+        res.status(200).json({ message: "Coffee profile deleted successfully" });
+    } catch (_error) {
+        res.status(400).json({ message: "Invalid coffee profile id" });
     }
 };
