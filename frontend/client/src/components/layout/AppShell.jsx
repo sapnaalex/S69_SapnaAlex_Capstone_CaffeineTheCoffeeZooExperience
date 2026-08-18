@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   BellIcon, BookOpenIcon, PuzzlePieceIcon, HeartIcon, HomeIcon, MagnifyingGlassIcon,
-  SparklesIcon, TrophyIcon, UserGroupIcon, XMarkIcon, Bars3Icon,
+  SparklesIcon, TrophyIcon, UserGroupIcon, XMarkIcon, Bars3Icon, ArrowLeftOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 import useAuth from "../../hooks/useAuth";
 import Button from "../Button";
@@ -46,7 +46,7 @@ const SidebarContent = ({ onNavigate }) => {
       <NavLink to="/profile" onClick={onNavigate} className="flex items-center gap-3 rounded-xl p-2 hover:bg-cream">
         <UserMark user={user} className="h-9 w-9" /><span className="min-w-0"><span className="block truncate text-sm font-semibold text-espresso">{user?.username || "Coffee explorer"}</span><span className="block text-xs text-mocha">View profile</span></span>
       </NavLink>
-      <Button variant="ghost" className="mt-2 w-full justify-start" onClick={leave}>Log out</Button>
+      <Button variant="ghost" className="mt-3 w-full justify-center bg-cream text-espresso shadow-sm hover:bg-sand" onClick={leave}><ArrowLeftOnRectangleIcon className="h-4 w-4" />Log out</Button>
     </div>
   </div>;
 };
@@ -55,11 +55,11 @@ const AppShell = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuth();
 
-  return <div className="min-h-screen bg-oat text-ink">
+  return <div className="min-h-screen w-full bg-oat text-ink">
     <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-sand bg-white p-4 lg:block"><SidebarContent /></aside>
-    {isMenuOpen && <div className="fixed inset-0 z-50 lg:hidden"><button className="absolute inset-0 bg-espresso/30" aria-label="Close navigation" onClick={() => setIsMenuOpen(false)} /><aside className="relative h-full w-72 bg-white p-4 shadow-2xl"><button className="absolute right-4 top-5 rounded-lg p-2 text-espresso hover:bg-cream" aria-label="Close navigation" onClick={() => setIsMenuOpen(false)}><XMarkIcon className="h-5 w-5" /></button><SidebarContent onNavigate={() => setIsMenuOpen(false)} /></aside></div>}
-    <main className="min-h-screen lg:pl-64">
-      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-sand/80 bg-oat/90 px-4 backdrop-blur lg:px-8">
+    {isMenuOpen && <div className="fixed inset-0 z-50 lg:hidden"><button className="absolute inset-0 bg-espresso/30" aria-label="Close navigation" onClick={() => setIsMenuOpen(false)} /><aside className="relative h-full w-72 max-w-[85vw] bg-white p-4 shadow-2xl"><button className="absolute right-4 top-5 rounded-lg p-2 text-espresso hover:bg-cream" aria-label="Close navigation" onClick={() => setIsMenuOpen(false)}><XMarkIcon className="h-5 w-5" /></button><SidebarContent onNavigate={() => setIsMenuOpen(false)} /></aside></div>}
+    <main className="min-h-screen w-full min-w-0 lg:pl-64">
+      <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-sand/80 bg-oat/90 px-4 backdrop-blur lg:px-8">
         <button className="rounded-xl p-2 text-espresso hover:bg-cream lg:hidden" aria-label="Open navigation" onClick={() => setIsMenuOpen(true)}><Bars3Icon className="h-6 w-6" /></button>
         <div className="hidden lg:block"><p className="text-xs font-bold uppercase tracking-[0.18em] text-leaf">The coffee zoo experience</p><p className="font-display text-lg font-semibold text-espresso">Good to see you, {user?.username || "explorer"}.</p></div>
         <div className="ml-auto flex items-center gap-2">
@@ -67,7 +67,7 @@ const AppShell = () => {
           <NavLink to="/profile" className="rounded-full"><UserMark user={user} className="h-9 w-9 ring-2 ring-white" /></NavLink>
         </div>
       </header>
-      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8"><Outlet /></div>
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:p-6 lg:p-8"><Outlet /></div>
     </main>
   </div>;
 };
